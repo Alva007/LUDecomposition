@@ -51,17 +51,16 @@ char **argv;
      srand(time(NULL));
       for(i=0;i<n;i++)  {
 	for(j=0;j<n;j++){
-	   a[i][j]=rand()%10+1;
-	   c[i][j]=a[i][j];
-	}
+         a[i][j]=rand()%10+1;
+         c[i][j]=a[i][j];
       }
-	
+     }
    }// end of master thread's work
 
  // printf("hello3\n");
   MPI_Barrier(MPI_COMM_WORLD);
-   gettimeofday(&tv,NULL);
-   start=tv.tv_sec;
+  gettimeofday(&tv,NULL);
+  start=tv.tv_sec;
 
    //MPI_Scatter(&(a[0][0]),(n*rows),MPI_DOUBLE,&(b[0][0],MPI_DOUBLE,0,MPI_COMM_WORLD); 
    // not working...
@@ -83,41 +82,41 @@ char **argv;
 
    MPI_Barrier(MPI_COMM_WORLD);
    if(my_id==0){
-      gettimeofday(&tv,NULL);
-       end=tv.tv_sec;
+     gettimeofday(&tv,NULL);
+     end=tv.tv_sec;
      printf("Operation took %lf seconds \n",end-start);
      /*As we are not scattering or gathering "d" we dont need contiguous allocation*/
      d=(double**)malloc(n*sizeof(double*));
      for(i=0;i<n;i++) d[i]=(double*)malloc(n*sizeof(double));
 
       /*Inplace verification*/	
-      for(i=0;i<n;i++){
-       for(j=0;j<n;j++){
-          d[i][j]=0;
-         for(k=0;k<n;k++){
-	       if(i>=k) l=c[i][k];
-               else l=0;
+    for(i=0;i<n;i++){
+     for(j=0;j<n;j++){
+       d[i][j]=0;
+       for(k=0;k<n;k++){
+        if(i>=k) l=c[i][k];
+        else l=0;
+       	if(k<j) u=c[k][j];
+        else if(k==j) u=1;
+        else u=0;
+	d[i][j]+=(l*u);
+	}
+      }
+     }	
 
-        	if(k<j) u=c[k][j];
-		else if(k==j) u=1;
-	        else u=0;
-		d[i][j]+=(l*u);
-		}
-        }
-      }	
-     for(i=0;i<n;i++){
-      for(j=0;j<n;j++){
-        if(abs(d[i][j]-a[i][j])>0.01){
-            flag=0;
-            break;
-         }
-       }
-     }     
+   for(i=0;i<n;i++){
+    for(j=0;j<n;j++){
+     if(abs(d[i][j]-a[i][j])>0.01){
+       flag=0;
+       break;
+     }
+    }
+   }     
 				
-     if(flag==1)
-     printf("Match");
-     else
-     printf("Erro : Not a match");
+   if(flag==1)
+    printf("Match");
+   else
+    printf("Erro : Not a match");
      
   }// end of book keeping of master process....
 
@@ -142,23 +141,23 @@ void LU(double **a,int rows,int n,int my_id )
      root=k/rows;
     /*Scaling step*/
     if(my_min<=k && k<=my_max){
-	for(j=k+1;j<n;j++){
-          a[k1][j]=a[k1][j]/a[k1][k];
-	  buffer[j]=a[k1][j];
-	}
+     for(j=k+1;j<n;j++){
+       a[k1][j]=a[k1][j]/a[k1][k];
+       buffer[j]=a[k1][j];
+      }
      //memcpy((void *)buffer,(const void *)a[k1],n);
      //not working....throwing sig 11 segfault
-     }
+    }
      /*Broadcast the scaled down row*/		
-     MPI_Bcast(buffer,n,MPI_DOUBLE,root,MPI_COMM_WORLD);
+    MPI_Bcast(buffer,n,MPI_DOUBLE,root,MPI_COMM_WORLD);
 
      /*Reduction step */
-     for(i=((k+1)>my_min ? (k+1) : my_min);i<=my_max;i++){
-	i1=i%rows;
-	 for(j=k+1;j<n;j++){
-	   a[i1][j]=a[i1][j]-a[i1][k]*buffer[j];
-	  }
-      }
+    for(i=((k+1)>my_min ? (k+1) : my_min);i<=my_max;i++){
+     i1=i%rows;
+     for(j=k+1;j<n;j++){
+      a[i1][j]=a[i1][j]-a[i1][k]*buffer[j];
+     }
+    }
    }
 
 }// end of LU decomposition
@@ -166,12 +165,12 @@ void LU(double **a,int rows,int n,int my_id )
 
 /*Helper function to extract N*/
 int extractN(char *c){
-	int temp=0;
-        while((*c)!='\0'){
-        temp=temp*10 + ((*c)-48);
-        c=c+1;
-        }
-        return temp;
+ int temp=0;
+ while((*c)!='\0'){
+  temp=temp*10 + ((*c)-48);
+  c=c+1;
+ }
+ return temp;
 }
 
 /*As suggested by Johnathan Dursi on stackoverflow for
@@ -180,20 +179,17 @@ int extractN(char *c){
  * */
 int malloc2Ddouble(double ***array, int n, int m) {
 
-    int i;
-    double *p = (double *)malloc(n*m*sizeof(double));
-    if (!p) return -1;
-
-    (*array) = (double **)malloc(n*sizeof(double*));
-    if (!(*array)) {
-       free(p);
-       return -1;
-    }
-
-    for (i=0; i<n; i++) 
-       (*array)[i] = &(p[i*m]);
-
-    return 0;
+ int i;
+ double *p = (double *)malloc(n*m*sizeof(double));
+ if (!p) return -1;
+ (*array) = (double **)malloc(n*sizeof(double*));
+ if (!(*array)) {
+  free(p);
+  return -1;
+ }
+ for (i=0; i<n; i++) 
+  (*array)[i] = &(p[i*m]);
+  return 0;
 }
 
 
