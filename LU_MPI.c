@@ -90,6 +90,7 @@ char **argv;
      d=(double**)malloc(n*sizeof(double*));
      for(i=0;i<n;i++) d[i]=(double*)malloc(n*sizeof(double));
 
+      /*Inplace verification*/	
       for(i=0;i<n;i++){
        for(j=0;j<n;j++){
           d[i][j]=0;
@@ -104,16 +105,14 @@ char **argv;
 		}
         }
       }	
-
-      /*Inplace verification*/	
-      for(i=0;i<n;i++){
-	  for(j=0;j<n;j++){
-	     if(abs(d[i][j]-a[i][j])>0.01){
-              flag=0;
-              break;
-            }
+     for(i=0;i<n;i++){
+      for(j=0;j<n;j++){
+        if(abs(d[i][j]-a[i][j])>0.01){
+            flag=0;
+            break;
          }
-      }     
+       }
+     }     
 				
      if(flag==1)
      printf("Match");
@@ -160,7 +159,7 @@ void LU(double **a,int rows,int n,int my_id )
 	   a[i1][j]=a[i1][j]-a[i1][k]*buffer[j];
 	  }
       }
-   }// end of outer most for loop
+   }
 
 }// end of LU decomposition
 
@@ -175,9 +174,9 @@ int extractN(char *c){
         return temp;
 }
 
-/*Function suggested by Johnathan Dursi on stackoverflow for
- *contiguous allocation of memory to be used in scatter and 
- *gather calls.
+/*As suggested by Johnathan Dursi on stackoverflow for
+ *contiguous allocation of memory (to be used in scatter and 
+ *gather calls).
  * */
 int malloc2Ddouble(double ***array, int n, int m) {
 
