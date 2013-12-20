@@ -58,14 +58,13 @@ int main(argc,argv)
         a[i][j]=a[i][j]-a[i][k]*a[k][j];
        } 
     }
-  }//end of outer for loop
-  //end of LU decomposition
+  }
+  /*end of LU decomposition*/
  gettimeofday(&tv,NULL);
  end=tv.tv_sec;
  printf("Operation took %lf\n",end-start);
 
- /*Inplace Verification step not working...*/
-
+ /*Inplace Verification step */
  for(i=0;i<n;i++){
    for(j=0;j<n;j++){
      c[i][j]=0;
@@ -77,7 +76,7 @@ int main(argc,argv)
        else l1=0;
 
        if(k==j)u1=1;
-       else if(k<j)u1=a[k][j];//figured it out 
+       else if(k<j)u1=a[k][j]; 
        else u1=0.0;
        
         c[i][j]=c[i][j]+(l1*u1);
@@ -94,6 +93,7 @@ int main(argc,argv)
      }
     }
  }
+ 
  if(flag==1){
      printf("Error : Not a match\n");
  }
